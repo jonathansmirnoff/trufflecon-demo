@@ -1,5 +1,4 @@
 pragma solidity ^0.5.8;
-pragma experimental ABIEncoderV2;
 
 //Contract is just like classes
 contract MessageBoard {
@@ -13,13 +12,12 @@ contract MessageBoard {
 
     //Defining Message structure. You can see it have User type member
     struct Message {
+        address userAddress;
         string text;
-        User _user;
     }
 
     //Declaring an event
-
-    event MessageCreated(Message message);
+    event MessageCreated(address userAddress, string text);
 
     //Constructor
     constructor() public {
@@ -33,7 +31,7 @@ contract MessageBoard {
     function setUsername(string memory name) public returns (bool) {
         //require() is throwing error, if the input is not true
         require(!userExists(msg.sender), "User is registered");
-        //msg.sender is the address.
+        //msg.sender is the address, from where the signUp was called.
         users[msg.sender] = User(msg.sender, name, true, false);
         return true;
     }
@@ -48,7 +46,7 @@ contract MessageBoard {
         require(!userSentMessage(msg.sender), "User has already sent a message");
         messageCount++;
         users[msg.sender].messageSent = true;
-        emit MessageCreated(Message(text, users[msg.sender]));
+        emit MessageCreated(msg.sender, text);
         return true;
     }
 
@@ -58,5 +56,9 @@ contract MessageBoard {
 
     function userSentMessage(address userAddress) public view returns (bool) {
         return users[userAddress].messageSent;
+    }
+
+    function getUserName(address userAddress) public view returns (string memory) {
+        return users[userAddress].name;
     }
 }

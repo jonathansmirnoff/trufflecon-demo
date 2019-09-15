@@ -2,64 +2,47 @@ import React, {Component} from 'react';
 import './App.css';
 import Web3 from 'web3';
 import axios from 'axios';
-import { decode } from 'punycode';
-import { TextEncoder } from 'util';
+import * as Constants from './Constants';
+import * as Utils from './Utils';
 
 class App extends Component{
 
-  state = { messages: [] }
+  constructor(props) {
+    super(props);
+    this.state = { 
+      messages: [],
+      addresses: [] 
+    };    
+  }  
 
-  async componentWillMount(){
-
-    const that = this;
-    var $page = {};
+  async componentDidMount(){
     var actualBlock = null;
+    var _this = this;
 
-    $page.contract_address = '0x969f812F4308BFEd193200BEcE2a1FdcfDCB4F60';
-    var apiUrl = "api?module=events&action=getAllEventsByAddress&address=" + $page.contract_address;
-    var web3 = new Web3(new Web3.providers.WebsocketProvider("ws://52.67.232.22:4445/websocket"));
-    var transform = function(input, apiCall){      
-      //TODO: resolve it more elegantly
-      if (!apiCall){
-        input = "0x" + input.substring(10);
-      }
+    let web3 = new Web3(new Web3.providers.WebsocketProvider(Constants.API_WS_URL));
+    let result = await axios.get(Constants.API_URL);
 
-      var it = input.substring(128);
-      var filtered = it.slice(0, ((it.search("00") % 2) === 1) ? it.search("00") + 1 : it.search("00"));
-      return web3.utils.toAscii("0x" + filtered).substring(1);
-    }
+    _this.setState({ 
+      messages: result.data.data.map(i => Utils.getMessage(i.data, web3)),
+      addresses: result.data.data.map(i => Utils.getMessageSenderAddress(i.data))
+     });
 
-    const result = await axios.get(apiUrl);
-    var oldMessages = result.data.data.map(i => transform(i.data, true));
-    var addresses = result.data.data.map(i => i.address);
-
-    that.setState({ messages: oldMessages });
-    that.setState({ addresses });
-
-
-
-    web3.eth.subscribe('newBlockHeaders', (error, result) => {
+    web3.eth.subscribe('newBlockHeaders', (error, result) => {      
       if (error || !result) {
         console.error(error);
         return;
       }
 
-      if (actualBlock == result.number) {
+      if (actualBlock === result.number) {
         return;
       }
-      else{
-        actualBlock = result.number;
-      }
+      actualBlock = result.number;      
 
       console.log("newblock " + result.number);
+
       web3.eth.getBlock(result.number, true).then(function(block){
-        block.transactions.forEach(function(e) {
-          if(e.to.toLowerCase() !== $page.contract_address) return;          
-          var message = transform(e.input, false);
-          const { messages: allMsg } = that.state;
-          allMsg.unshift(message);
-          that.setState({ messages: allMsg });
-          console.log(message);
+        block.transactions.forEach(function(tx) {
+          Utils.processNewBlockTx(tx, Constants, _this, Utils, web3);          
         });
       });
     });
