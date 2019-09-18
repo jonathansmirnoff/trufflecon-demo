@@ -1,5 +1,5 @@
-function getMessage(input, web3){
-    return web3.utils.toAscii("0x" + input.substring(70)).trim().replace('@','');
+function getMessage(input, web3){        
+    return web3.utils.toAscii("0x" + input.substring(70)).replace('@','').trim();    
 }
 
 function getMessageSenderAddress(input){

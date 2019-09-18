@@ -4,6 +4,9 @@ import Web3 from 'web3';
 import axios from 'axios';
 import * as Constants from './Constants';
 import * as Utils from './Utils';
+import {Button} from 'react-bootstrap';
+import swal from 'sweetalert';
+
 
 class App extends Component{
 
@@ -49,12 +52,27 @@ class App extends Component{
 
   }
 
+  findWinner(){    
+    console.log(this.state.addresses.length); 
+    var winner = Math.floor(Math.random() * Math.floor(this.state.addresses.length));
+    console.log(winner); 
+    document.querySelector('li[data-index="' + winner + '"]').classList.add("winner");    
+
+    swal({
+      title:"Good job!",
+      text: "The winner address is:\n" + this.state.addresses[winner] + "\n The message is" + this.state.messages[winner],
+      icon: "success",
+      button: "OK!",
+    });
+  }
+
   render(){
 
     return (
       <div className="App">
-        <button onClick={()=>{ console.log(this.state.addresses.length); var winner = Math.floor(Math.random() * Math.floor(this.state.addresses.length)); console.log(winner); alert(this.state.addresses[winner]); document.querySelector('li[data-index="' + winner + '"]').classList.add("winner"); }}>spin!</button>
-        <ul>
+        <br></br>        
+        <Button variant="secondary" onClick={()=>{ this.findWinner() }}>Find a winner!</Button>
+        <ul>          
           { this.state.messages.map((m,i) => <li key={i} data-index={i}>{m}</li>) }
         </ul>
       </div>
