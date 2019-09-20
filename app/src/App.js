@@ -53,17 +53,18 @@ class App extends Component{
   }
 
   findWinner(){    
-    console.log(this.state.addresses.length); 
+    let web3 = new Web3(new Web3.providers.HttpProvider(Constants.PUBLIC_TESTNET_NODE));    
     var winner = Math.floor(Math.random() * Math.floor(this.state.addresses.length));
-    console.log(winner); 
     document.querySelector('li[data-index="' + winner + '"]').classList.add("winner");    
 
-    swal({
-      title:"Good job!",
-      text: "The winner address is:\n" + this.state.addresses[winner] + "\n The message is" + this.state.messages[winner],
-      icon: "success",
-      button: "OK!",
-    });
+    Utils.getSenderName(web3, Constants.MESSAGE_BORAD_CONTRACT_ADDRESS,"0x" + this.state.addresses[winner]).then(winnerName => {      
+      swal({
+        title:"Good job!",
+        text: "Congrats " + winnerName + "! 0x" + this.state.addresses[winner] + "\n Your message is" + this.state.messages[winner],
+        icon: "success",
+        button: "OK!",
+      });
+    })
   }
 
   render(){
