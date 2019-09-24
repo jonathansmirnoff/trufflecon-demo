@@ -6,15 +6,17 @@ import * as Constants from './Constants';
 import * as Utils from './Utils';
 import {Button} from 'react-bootstrap';
 import swal from 'sweetalert';
+import { MetroSpinner } from "react-spinners-kit";
 
 
 class App extends Component{
 
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = { 
       messages: [],
-      addresses: [] 
+      addresses: [],
+      loading: true
     };    
   }  
 
@@ -28,6 +30,10 @@ class App extends Component{
     _this.setState({ 
       messages: result.data.data.map(i => Utils.getMessage(i.data, web3)),
       addresses: result.data.data.map(i => Utils.getMessageSenderAddress(i.data))
+     });
+
+     _this.setState({
+       loading: false
      });
 
     web3.eth.subscribe('newBlockHeaders', (error, result) => {      
@@ -68,11 +74,17 @@ class App extends Component{
   }
 
   render(){
+    const { loading } = this.state;
 
     return (
-      <div className="App">
-        <br></br>        
-        <Button variant="secondary" onClick={()=>{ this.findWinner() }}>Find a winner!</Button>
+      <div className="App">        
+        <div className="Spinner">
+          {loading ? <MetroSpinner
+                  size={60}
+                  color="#FFFFFF"
+                  loading={loading}
+          />: <Button variant="secondary" onClick={()=>{ this.findWinner() }}>Find a winner!</Button>}
+        </div>        
         <ul>          
           { this.state.messages.map((m,i) => <li key={i} data-index={i}>{m}</li>) }
         </ul>
