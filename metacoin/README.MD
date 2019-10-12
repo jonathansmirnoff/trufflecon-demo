@@ -14,9 +14,11 @@ To deploy it using [Truffle](https://www.trufflesuite.com/docs/truffle/getting-s
 
 
 ## MetaCoin 
+- Link [Ganache](https://www.trufflesuite.com/ganache) to MetaCoin Project following this [link](https://www.trufflesuite.com/docs/ganache/truffle-projects/linking-a-truffle-project).
+- In `truffle-confij.js` update `mnemonic` with the mnemonic of Ganache.
 - Go to MetaCoin folder and compile contract with `truffle compile`
 - Deploy the contracts with `truffle migration`. 
-- Link [Ganache](https://www.trufflesuite.com/ganache) to MetaCoin Project following this [link](https://www.trufflesuite.com/docs/ganache/truffle-projects/linking-a-truffle-project).
+
 
 ### Interact with MetaCoin Contract
 - Connect to `development` with `truffle console --network development`.
